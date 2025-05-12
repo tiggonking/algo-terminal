@@ -25,6 +25,7 @@ The staging environment is hosted on Azure VM. To access the staging environment
 4. To connect to the VM you need to use RDP (available on Windows and Mac)
 5. VM name: strategybuilder
 6. You will be prompted for a pincode and the vm password. Mitch will provide these to you. 
+7. Please ping me prior to connecting so I can start the VM (VM is default paused to reduce cost)
 
 The VM is setup with Norgate, RealTest, IB gateway, and the latest executable of the OMS.
 
