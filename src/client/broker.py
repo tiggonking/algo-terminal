@@ -4,7 +4,7 @@
 from decimal import Decimal
 from globals.log_setup import LOG
 from globals.signals import SIGNALS
-from src.ib_api.ib_api import IB_API
+from src.ib_api.interface.ib_api import IB_API
 from ibapi.order_state import OrderState
 from itertools import chain, combinations
 import src.utils.utilities as util
