@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "algoterminal"
+version = "0.1.0"
+description = "Order management system"
+authors = [
+    {name = "Tony Zeljkovic", email = "tony@naronadata.com"}
+]
+readme = "README.md"
+license = {text = "MIT"} 
+requires-python = ">=3.12" 
+
+dependencies = [
+    "pandas==2.2.3",
+    "pytz~=2022.7.1",
+    "openpyxl~=3.1.2",
+    "python-dateutil~=2.8.2",
+    "PyQt6",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest~=7.2.1",
+    "setuptools==80.4.0",  # Moved here since it's typically a build dependency
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]  # Assumes your code is in src/ directory
+
+[tool.setuptools.package-dir]
+"" = "src"
