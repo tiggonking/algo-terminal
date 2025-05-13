@@ -1,0 +1,20 @@
+volumes:
+  AlgoTerminalDevEnv-shell-history: # This basically let's docker auto-manage this volume.
+
+services:
+  algoterminaldev:
+    profiles:
+      - development
+    # platform: linux/amd64 # We force the platform for consistency.
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - /var/run/docker.sock:/var/run/docker-host.sock # Forwards the local Docker socket to the container.
+      - ..:/algoterminal # Mount the local git directory into the container. We can use this to shuttle files back and forth as well.
+    # Overrides default command so things don't shut down after the process ends.
+    command: /bin/zsh -c "while sleep 1000; do :; done"
+    # env_file: devcontainer.env
+    environment:
+      - DUMMY:1
+      # We can use this to add any env vars we need for local development. Secrets should be reference through env or a local env file.

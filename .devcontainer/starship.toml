@@ -1,0 +1,72 @@
+format = """
+
+$directory\
+
+${custom.docker}\
+
+$git_branch\
+${custom.git_workspace}\
+${custom.git_worktree}\
+$git_status\
+
+${custom.python_version}\
+
+$conda
+
+[> ](#0000)\
+"""
+
+# Disable the blank line at the start of the prompt
+# add_newline = false
+
+[directory]
+style = "bg:#DA627D"
+format = "[](#DA627D)[📁 $path ]($style)[](#DA627D)[](#1d1d1d)"
+truncation_length = 0
+truncation_symbol = "…/"
+
+[git_branch]
+symbol = "🌲"
+style = "bg:#FCA17D"
+format = '[](#FCA17D)[ $symbol $branch ]($style)'
+
+[custom.git_workspace]
+style = "bg:#e3d800 fg:#33658A"
+format = "[](#FCA17D)[](#1d1d1d)"
+when = "git rev-parse --git-dir > /dev/null 2>&1 && ! git status > /dev/null 2>&1"
+
+[custom.git_worktree]
+style = "bg:#e3d800 fg:#407a4e"
+format = "[](#FCA17D)[](#1d1d1d)"
+when = "git rev-parse --is-inside-work-tree 2>&1 | grep -q 'true' && git status | grep -q 'nothing to commit'"
+
+[git_status]
+ahead = "[](fg:#FCA17D bg:#B0E57C)[ ⬆  Ahead ](bg:#B0E57C fg:#1d1d1d)[](#B0E57C)"       # Light Green
+behind = "[](fg:#FCA17D bg:#FF9AA2)[ ⬇  Behind ](bg:#FF9AA2 fg:#1d1d1d)[](#FF9AA2)"     # Light Coral
+diverged = "[](fg:#FCA17D bg:#FFB7B2)[ ↕  Diverged ](bg:#FFB7B2 fg:#1d1d1d)[](#FFB7B2)"  # Light Pink
+untracked = "[](fg:#FCA17D bg:#FFDAC1)[ 🪨  Unchanged ](bg:#FFDAC1 fg:#1d1d1d)[](#FFDAC1)" # Pastel Orange
+modified = "[](fg:#FCA17D bg:#E2F0CB)[ 📒 Modified ](bg:#E2F0CB fg:#1d1d1d)[](#E2F0CB)" # Pale Green
+stashed = "[](fg:#FCA17D bg:#C7CEEA)[ 📚  Stash ](bg:#C7CEEA fg:#1d1d1d)[](#C7CEEA)"     # Periwinkle
+renamed = "[](fg:#FCA17D bg:#FFD3B6)[ 📛  Renamed ](bg:#FFD3B6 fg:#1d1d1d)[](#FFD3B6)"   # Light Peach
+deleted = "[](fg:#FCA17D bg:#FFCFD8)[ 🗑️  Deleted ](bg:#FFCFD8 fg:#1d1d1d)[](#FFCFD8)"  # Baby Pink
+conflicted = "[](fg:#FCA17D bg:#FF9CEE)[ ❌  Conflicted](bg:#FF9CEE fg:#1d1d1d)[](#FF9CEE)" # Light Magenta
+
+# Default styling for the entire git status; can be overridden by individual status styles.
+style = "bg:#e3d800 fg:#33658A"
+format = '($all_status[$ahead_behind]($style)[](#1d1d1d))'
+
+[custom.python_version]
+command = "python --version 2>&1 | awk '{print $2}'"
+symbol = "🐍 "
+style = "bg:#407a4e"
+format = '[](#407a4e)[$symbol$output ]($style)[](#407a4e)[](#1d1d1d)'
+when = "true"
+
+[custom.docker]
+command = "echo $HOSTNAME"
+symbol = "🐳 "
+style = "bg:#004d80"
+format = "[](#004d80)[$symbol$output ]($style)[](#004d80)[](#1d1d1d)"
+when = 'true'
+ignore_timeout = true
+
