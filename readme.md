@@ -3,5 +3,5 @@
 From within devcontainer run:
 
 ```bash
-uv pip install -e .
+uv build
 ```
