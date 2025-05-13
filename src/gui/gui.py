@@ -795,7 +795,7 @@ class OMSgui(QMainWindow):
         # Cancelled trades are trades which are not place (for various reasons) or placed but entry limits not
         # penetrated before expiry.  See trades.prune() function for archiving approach.
 
-        from broker import BrokerApp
+        from src.client.broker import BrokerApp
         found = False
         for b in self.oms.brokers:
             assert isinstance(b, BrokerApp)

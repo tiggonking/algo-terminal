@@ -12,8 +12,8 @@ make the code more readable.
 '''
 
 
-import utilities as util  # import first to initiate log
-from broker import BrokerApp
+import src.utils.utilities as util  # import first to initiate log
+from src.client.broker import BrokerApp
 from copy import deepcopy
 import csv
 from datetime import datetime, timedelta
@@ -25,7 +25,7 @@ from email.mime.base import MIMEBase
 from email.header import Header
 from email.utils import formataddr
 from email import encoders
-from gui import OMSgui
+from src.gui.gui import OMSgui
 import logging
 from globals.addresses import ADDR
 from globals.config import OMS_SETTINGS, OMS_CONFIG
@@ -34,7 +34,7 @@ from globals.log_setup import LOG, customSMTPHandler
 from globals.signals import SIGNALS
 from globals.trading import TGL
 from markets import US_MARKET
-from nav_monitor import NAVMonitor
+from src.account.nav_monitor import NAVMonitor
 import openpyxl
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font
@@ -53,7 +53,7 @@ import sys
 import threading
 import time as sleeper
 import traceback
-from trades import TradeRecord, TradeRegister
+from src.trades.trades import TradeRecord, TradeRegister
 
 
 class OMS:
@@ -1970,7 +1970,7 @@ class OMS:
         self.keep_alive = False
 
         LOG.info('Disconnecting API')
-        from ib_api import IB_API
+        from src.ib_api.ib_api import IB_API
         for api in IB_API._instances:
             # disconnect from broker
             api.keep_alive = False
@@ -2007,7 +2007,7 @@ class OMS:
 
 if __name__ == '__main__':
 
-    from splash_screen import QASplashScreen
+    from src.gui.splash_screen import QASplashScreen
 
     app = QApplication(sys.argv)
 

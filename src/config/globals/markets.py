@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime, date, timedelta
 from ibapi.contract import Contract
-import utilities as util
+import src.utils.utilities as util
 from globals.trading import TGL
 from zoneinfo import ZoneInfo
 

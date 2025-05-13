@@ -4,10 +4,10 @@
 from decimal import Decimal
 from globals.log_setup import LOG
 from globals.signals import SIGNALS
-from ib_api import IB_API
+from src.ib_api.ib_api import IB_API
 from ibapi.order_state import OrderState
 from itertools import chain, combinations
-import utilities as util
+import src.utils.utilities as util
 from ibapi.contract import Contract
 import orders as o
 
@@ -320,7 +320,7 @@ class BrokerApp:
 
 if __name__ == '__main__':
 
-    from trades import TradeRegister
+    from src.trades.trades import TradeRegister
     import os
     from tkinter.filedialog import askdirectory
     import time as sleeper

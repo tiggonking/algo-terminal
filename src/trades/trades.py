@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from globals.addresses import ADDR
 import orders
-import utilities as util
+import src.utils.utilities as util
 from globals.log_setup import LOG
 from ibapi.execution import Execution
 import os

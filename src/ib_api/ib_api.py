@@ -19,7 +19,7 @@ import pytz
 import time
 from time import sleep
 import threading
-import utilities as util
+import src.utils.utilities as util
 from zoneinfo import ZoneInfo
 
 

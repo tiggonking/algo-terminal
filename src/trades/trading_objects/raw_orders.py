@@ -4,7 +4,7 @@ from decimal import Decimal
 from globals.signals import SIGNALS
 from globals.trading import TGL
 import numpy as np
-from trades import TradeRecord
+from src.trades.trades import TradeRecord
 
 
 @dataclass
