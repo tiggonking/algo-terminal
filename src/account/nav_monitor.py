@@ -1,6 +1,6 @@
 import shutil
 
-from src.client.broker import BrokerApp
+from src.broker.broker import BrokerApp
 from globals.config import OMS_CONFIG
 from datetime import datetime, timedelta
 from globals.addresses import ADDR

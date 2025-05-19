@@ -13,7 +13,7 @@ make the code more readable.
 
 
 import src.utils.utilities as util  # import first to initiate log
-from src.client.broker import BrokerApp
+from src.broker.broker import BrokerApp
 from copy import deepcopy
 import csv
 from datetime import datetime, timedelta
