@@ -4,7 +4,7 @@ from globals.addresses import ADDR
 from globals.log_setup import LOG, customSMTPHandler
 from globals.signals import SIGNALS
 import logging
-from markets import US_MARKET
+from src.markets.markets import US_MARKET
 import numpy as np
 from trading_objects.account import Account
 from trading_objects.strategy import Strategy

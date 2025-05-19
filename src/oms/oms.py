@@ -33,7 +33,7 @@ from config.globals.email_manager import EMAIL_MANAGER
 from config.globals.log_setup import LOG, customSMTPHandler
 from config.globals.signals import SIGNALS
 from config.globals.trading import TGL
-from config.globals.markets import US_MARKET
+from src.markets.markets import US_MARKET
 from src.account.nav_monitor import NAVMonitor
 import openpyxl
 from openpyxl import Workbook
