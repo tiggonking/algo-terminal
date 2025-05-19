@@ -5,7 +5,7 @@ from ibapi.order_state import OrderState
 from ibapi.order_condition import OrderCondition, Create
 from ibapi.tag_value import TagValue
 
-from trading_objects.raw_orders import RawOrder
+from src.trades.orders.raw_orders import RawOrder
 from zoneinfo import ZoneInfo
 
 

@@ -1,0 +1,103 @@
+Algo_Terminal/
+├── src/
+│   ├── account/
+│   │   ├── account.py
+│   │   ├── nav_monitor.py
+│   │   └── positions/
+│   │       └── manager.py
+│   │
+│   ├── broker/
+│   │   ├── broker.py
+│   │   └── connectionmanager.py
+│   │
+│   ├── config/
+│   │   ├── globals/
+│   │   │   ├── addresses.py
+│   │   │   ├── config.py
+│   │   │   ├── email_manager.py
+│   │   │   ├── log_setup.py
+│   │   │   ├── signals.py
+│   │   │   └── trading.py
+│   │   └── manager.py
+│   │
+│   ├── error/
+│   │   └── handler.py
+│   │
+│   ├── gui/
+│   │   ├── gui.py
+│   │   └── splash_screen.py
+│   │
+│   ├── ib_api/
+│   │   ├── interface/
+│   │   │   └── ib_api.py
+│   │   └── src/
+│   │       └── ibapi/
+│   │           └── IBJts/
+│   │               ├── samples/
+│   │               │   └── Python/
+│   │               │       └── Testbed/
+│   │               └── source/
+│   │                   └── pythonclient/
+│   │                       ├── ibapi/
+│   │                       ├── tests/
+│   │                       └── [build files]
+│   │
+│   ├── markets/
+│   │   ├── manager.py
+│   │   └── markets.py
+│   │
+│   ├── notification/
+│   │   └── README
+│   │
+│   ├── oms/
+│   │   └── oms.py
+│   │
+│   ├── reconcilliator/
+│   │   └── recon.py
+│   │
+│   ├── reports/
+│   │   └── generator.py
+│   │
+│   ├── trades/
+│   │   ├── orders/
+│   │   │   ├── order_file_handler.py
+│   │   │   ├── orders.py
+│   │   │   ├── processor.py
+│   │   │   ├── raw_orders.py
+│   │   │   └── scheduler.py
+│   │   ├── register/
+│   │   │   └── manager.py
+│   │   ├── strategy/
+│   │   │   └── strategy.py
+│   │   └── trades.py
+│   │
+│   └── utils/
+│       ├── Help Files/
+│       │   ├── QAOMS.spec
+│       │   └── QuantAlpha OMS Help Documentation.hnd
+│       └── utilities.py
+│
+├── Tests/
+│   ├── legacytests/
+│   │   ├── Global Log/
+│   │   │   └── Global Debug Log.2023-03-05
+│   │   ├── Test Broker/
+│   │   │   ├── conftest.py
+│   │   │   └── test_broker.py
+│   │   ├── Test_Kit/
+│   │   │   ├── Mocks/
+│   │   │   │   └── mock_broker.py
+│   │   │   └── Test Data/
+│   │   │       └── orders_file.csv
+│   │   ├── test_config_file_import.py
+│   │   ├── test_order_file_handler.py
+│   │   └── test_trades.py
+│   ├── __init__.py
+│   ├── conftest.py
+│   ├── ini.txt
+│   └── pytest.ini
+│
+├── CHANGELOG.md
+├── README.md
+├── pyproject.toml
+└── requirements.txt

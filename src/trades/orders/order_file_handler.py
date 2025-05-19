@@ -1,7 +1,7 @@
 from globals.addresses import ADDR
 from globals.log_setup import LOG
 from globals.signals import SIGNALS
-from trading_objects.raw_orders import RawOrder
+from src.trades.orders.raw_orders import RawOrder
 import os
 import numpy as np
 import pandas as pd
