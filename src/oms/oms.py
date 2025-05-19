@@ -27,13 +27,13 @@ from email.utils import formataddr
 from email import encoders
 from src.gui.gui import OMSgui
 import logging
-from globals.addresses import ADDR
-from globals.config import OMS_SETTINGS, OMS_CONFIG
-from globals.email_manager import EMAIL_MANAGER
-from globals.log_setup import LOG, customSMTPHandler
-from globals.signals import SIGNALS
-from globals.trading import TGL
-from markets import US_MARKET
+from config.globals.addresses import ADDR
+from config.globals.config import OMS_SETTINGS, OMS_CONFIG
+from config.globals.email_manager import EMAIL_MANAGER
+from config.globals.log_setup import LOG, customSMTPHandler
+from config.globals.signals import SIGNALS
+from config.globals.trading import TGL
+from config.globals.markets import US_MARKET
 from src.account.nav_monitor import NAVMonitor
 import openpyxl
 from openpyxl import Workbook
