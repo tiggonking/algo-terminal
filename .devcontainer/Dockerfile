@@ -31,7 +31,8 @@ RUN apt-get update && apt-get install -y \
     zsh \
     openssh-client \
     jq \
-    unzip
+    unzip \
+    net-tools
 
 ###################################################
 ##### SETTING UP ZSH WITH CUSTOM SHELL PROMPT #####
