@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal
-from globals.signals import SIGNALS
-from globals.trading import TGL
+from src.config.globals.signals import SIGNALS
+from src.config.globals.trading import TGL
 import numpy as np
 from src.trades.trades import TradeRecord
 

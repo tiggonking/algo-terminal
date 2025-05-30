@@ -2,8 +2,8 @@
 
 
 from decimal import Decimal
-from globals.log_setup import LOG
-from globals.signals import SIGNALS
+from src.config.globals.log_setup import LOG
+from src.config.globals.signals import SIGNALS
 from src.ib_api.interface.ib_api import IB_API
 from ibapi.order_state import OrderState
 from itertools import chain, combinations

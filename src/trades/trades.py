@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta
 from decimal import Decimal
-from globals.addresses import ADDR
+from src.config.globals.addresses import ADDR
 import orders
 import src.utils.utilities as util
-from globals.log_setup import LOG
+from src.config.globals.log_setup import LOG
 from ibapi.execution import Execution
 import os
 import pickle

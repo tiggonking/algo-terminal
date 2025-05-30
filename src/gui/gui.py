@@ -44,13 +44,13 @@
 from decimal import Decimal
 import threading
 from datetime import datetime, timedelta
-from globals.addresses import ADDR
-from globals.email_manager import EMAIL_MANAGER
-from globals.log_setup import customSMTPHandler
-from globals.config import OMS_SETTINGS
-from globals.signals import SIGNALS
+from src.config.globals.addresses import ADDR
+from src.config.globals.email_manager import EMAIL_MANAGER
+from src.config.globals.log_setup import customSMTPHandler
+from src.config.globals.config import OMS_SETTINGS
+from src.config.globals.signals import SIGNALS
 import logging
-from markets import US_MARKET
+from src.markets.markets import US_MARKET
 import os
 from PyQt6.QtCore import (pyqtSignal, pyqtSlot, QBasicTimer, QDateTime, QObject, QRunnable, Qt, QThreadPool,
                           QTime, QTimer, QUrl)

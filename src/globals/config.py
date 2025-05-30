@@ -1,10 +1,10 @@
 from datetime import datetime, time
-from globals.email_manager import EMAIL_MANAGER
-from globals.addresses import ADDR
-from globals.log_setup import LOG, customSMTPHandler
-from globals.signals import SIGNALS
+from src.config.globals.email_manager import EMAIL_MANAGER
+from src.config.globals.addresses import ADDR
+from src.config.globals.log_setup import LOG, customSMTPHandler
+from src.config.globals.signals import SIGNALS
 import logging
-from markets import US_MARKET
+from src.markets.markets import US_MARKET
 import numpy as np
 from trading_objects.account import Account
 from trading_objects.strategy import Strategy

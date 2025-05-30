@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from globals.log_setup import LOG
+from src.config.globals.log_setup import LOG
 
 
 @dataclass

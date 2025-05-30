@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from globals.trading import TGL
+from src.config.globals.trading import TGL
 import os.path
 
 

@@ -1,5 +1,5 @@
 from datetime import datetime
-from globals.log_setup import LOG
+from src.config.globals.log_setup import LOG
 from ibapi.order import Order
 from ibapi.order_state import OrderState
 from ibapi.order_condition import OrderCondition, Create

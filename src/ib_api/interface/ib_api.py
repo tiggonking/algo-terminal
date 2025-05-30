@@ -5,8 +5,8 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
-from globals.log_setup import LOG
-from globals.email_manager import EMAIL_MANAGER
+from src.config.globals.log_setup import LOG
+from src.config.globals.email_manager import EMAIL_MANAGER
 from ibapi.client import EClient
 from ibapi.contract import Contract
 from ibapi.execution import Execution, ExecutionFilter

@@ -1,10 +1,10 @@
 import shutil
 
 from src.broker.broker import BrokerApp
-from globals.config import OMS_CONFIG
+from src.config.globals.config import OMS_CONFIG
 from datetime import datetime, timedelta
-from globals.addresses import ADDR
-from globals.log_setup import LOG
+from src.config.globals.addresses import ADDR
+from src.config.globals.log_setup import LOG
 from markets import US_MARKET
 import numpy as np
 import openpyxl

@@ -1,6 +1,6 @@
-from globals.addresses import ADDR
-from globals.log_setup import LOG
-from globals.signals import SIGNALS
+from src.config.globals.addresses import ADDR
+from src.config.globals.log_setup import LOG
+from src.config.globals.signals import SIGNALS
 from src.trades.orders.raw_orders import RawOrder
 import os
 import numpy as np
