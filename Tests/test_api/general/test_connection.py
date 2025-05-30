@@ -21,7 +21,7 @@ class TestApp(EClient, EWrapper):
     print(f"reqId: {reqId}, errorCode: {errorCode}, errorString: {errorString}, orderReject: {advancedOrderReject}, extra: {extra}")
     
     
-def test_app():
+def test_connection():
     app = TestApp()
     app.connect("host.docker.internal", 7497, 0)
     threading.Thread(target=app.run).start()
@@ -37,4 +37,4 @@ def test_app():
     assert list_of_ids == [2,3,4,5,6]
     
 if __name__ == "__main__":
-  test_app()
+  test_connection()
