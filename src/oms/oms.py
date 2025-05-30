@@ -12,8 +12,8 @@ make the code more readable.
 '''
 
 
-import src.utils.utilities as util  # import first to initiate log
-from src.broker.broker import BrokerApp
+import utils.utilities as util  # import first to initiate log
+from broker.broker import BrokerApp
 from copy import deepcopy
 import csv
 from datetime import datetime, timedelta
@@ -25,7 +25,7 @@ from email.mime.base import MIMEBase
 from email.header import Header
 from email.utils import formataddr
 from email import encoders
-from src.gui.gui import OMSgui
+from gui.gui import OMSgui
 import logging
 from config.globals.addresses import ADDR
 from config.globals.config import OMS_SETTINGS, OMS_CONFIG
@@ -33,8 +33,8 @@ from config.globals.email_manager import EMAIL_MANAGER
 from config.globals.log_setup import LOG, customSMTPHandler
 from config.globals.signals import SIGNALS
 from config.globals.trading import TGL
-from src.markets.markets import US_MARKET
-from src.account.nav_monitor import NAVMonitor
+from markets.markets import US_MARKET
+from account.nav_monitor import NAVMonitor
 import openpyxl
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font
@@ -53,7 +53,7 @@ import sys
 import threading
 import time as sleeper
 import traceback
-from src.trades.trades import TradeRecord, TradeRegister
+from trades.trades import TradeRecord, TradeRegister
 
 
 class OMS:
@@ -1970,7 +1970,7 @@ class OMS:
         self.keep_alive = False
 
         LOG.info('Disconnecting API')
-        from src.ib_api.ib_api import IB_API
+        from ib_api.ib_api import IB_API
         for api in IB_API._instances:
             # disconnect from broker
             api.keep_alive = False
@@ -2007,7 +2007,7 @@ class OMS:
 
 if __name__ == '__main__':
 
-    from src.gui.splash_screen import QASplashScreen
+    from gui.splash_screen import QASplashScreen
 
     app = QApplication(sys.argv)
 
