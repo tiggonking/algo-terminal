@@ -3,8 +3,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.header import Header
 from email.utils import formataddr
-from globals.addresses import ADDR
-from globals.signals import SIGNALS
+from src.config.globals.addresses import ADDR
+from src.config.globals.signals import SIGNALS
 import logging
 import logging.handlers
 import os

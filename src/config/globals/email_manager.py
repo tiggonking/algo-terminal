@@ -6,8 +6,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
-from globals.log_setup import LOG
-from globals.signals import SIGNALS
+from src.config.globals.log_setup import LOG
+from src.config.globals.signals import SIGNALS
 import os
 from os.path import basename
 import sys
