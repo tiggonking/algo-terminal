@@ -61,7 +61,7 @@ from PyQt6.QtWidgets import (QApplication, QButtonGroup, QMainWindow, QCheckBox,
                              QTabWidget, QTextEdit, QVBoxLayout, QWidget, QInputDialog)
 from PyQt6.QtGui import QColor, QBrush, QFont, QFontMetrics, QDesktopServices
 import time
-import utilities
+import src.utils.utilities as utilities
 import sys
 import traceback
 

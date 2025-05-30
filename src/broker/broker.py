@@ -9,7 +9,7 @@ from ibapi.order_state import OrderState
 from itertools import chain, combinations
 import src.utils.utilities as util
 from ibapi.contract import Contract
-import orders as o
+import src.trades.orders as o
 
 timer = util.CodeTimer()
 

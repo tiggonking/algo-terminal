@@ -64,7 +64,10 @@ class customSMTPHandler(logging.handlers.SMTPHandler):
 
     def emit(self, record):
         # messages are added to the email_notifier object, as [subject, body, attachment]
-        self.email_notifier.email_queue.append([self.getSubject(record), str(record.msg), None])
+        try:
+            self.email_notifier.email_queue.append([self.getSubject(record), str(record.msg), None])
+        except Exception as e:
+            print(f'Error adding email to queue: {e}')
 
 
 # Deprecated version - this integrated Email management with the SMTP handler

@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from decimal import Decimal
 from src.config.globals.addresses import ADDR
-import orders
+import src.trades.orders as orders
 import src.utils.utilities as util
 from src.config.globals.log_setup import LOG
 from ibapi.execution import Execution

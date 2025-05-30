@@ -42,9 +42,9 @@ from src.account.nav_monitor import NAVMonitor
 import openpyxl
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font
-from trades.orders.order_file_handler import FileWatcher
-from trades.orders.orders import OrderRef
-import orders as o
+from src.trades.orders.order_file_handler import FileWatcher
+from src.trades.orders.orders import OrderRef
+import src.trades.orders as o
 import os
 from os.path import basename
 import pandas as pd
@@ -2012,25 +2012,21 @@ class OMS:
 def main():
     from src.gui.splash_screen import QASplashScreen
     
-    try:
-        app = QApplication(sys.argv)
+    app = QApplication(sys.argv)
 
-        pixmap = QPixmap(500, 300)
-        splash = QASplashScreen(
-            pixmap=pixmap,
-            software_name="Quantive Alpha\nOrder Management System",
-            version_info=__version__
-        )
-        splash.show()
+    pixmap = QPixmap(500, 300)
+    splash = QASplashScreen(
+        pixmap=pixmap,
+        software_name="Quantive Alpha\nOrder Management System",
+        version_info=__version__
+    )
+    splash.show()
 
-        oms = OMS()
-        oms_gui = OMSgui(oms)
-        oms_gui.show()
-        splash.finish(oms_gui)
-        app.exec()
-    except Exception as e:
-        LOG.error(f"An error occurred: {e}")
-        raise e
+    oms = OMS()
+    oms_gui = OMSgui(oms)
+    oms_gui.show()
+    splash.finish(oms_gui)
+    app.exec()
 
 
 if __name__ == '__main__':
