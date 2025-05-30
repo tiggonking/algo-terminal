@@ -31,12 +31,12 @@ from email.utils import formataddr
 from email import encoders
 from src.gui.gui import OMSgui
 import logging
-from config.globals.addresses import ADDR
-from config.globals.config import OMS_SETTINGS, OMS_CONFIG
-from config.globals.email_manager import EMAIL_MANAGER
-from config.globals.log_setup import LOG, customSMTPHandler
-from config.globals.signals import SIGNALS
-from config.globals.trading import TGL
+from src.config.globals.addresses import ADDR
+from src.config.globals.config import OMS_SETTINGS, OMS_CONFIG
+from src.config.globals.email_manager import EMAIL_MANAGER
+from src.config.globals.log_setup import LOG, customSMTPHandler
+from src.config.globals.signals import SIGNALS
+from src.config.globals.trading import TGL
 from src.markets.markets import US_MARKET
 from src.account.nav_monitor import NAVMonitor
 import openpyxl
