@@ -5,7 +5,7 @@ from src.config.globals.config import OMS_CONFIG
 from datetime import datetime, timedelta
 from src.config.globals.addresses import ADDR
 from src.config.globals.log_setup import LOG
-from markets import US_MARKET
+from src.markets.markets import US_MARKET
 import numpy as np
 import openpyxl
 from openpyxl.styles import numbers, Alignment, Border, Side
