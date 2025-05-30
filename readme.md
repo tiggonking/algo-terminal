@@ -7,8 +7,14 @@ uv build
 ```
 
 # Build exe
-in git terminal
+You will need pyinstaller installed in your environment.
+
+First, pip install the package
+```bash
+pip install -e .
+```
+in git terminal run the fulling to create the exe build:
 
 ```bash
-pyinstaller --onefile /c/Users/DELL/Documents/Code/Algo_Terminal/src/oms/oms.py 
+pyinstaller --onefile --windowed src/oms/oms.py 
 ```

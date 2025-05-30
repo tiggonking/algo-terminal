@@ -14,11 +14,12 @@ license = {text = "MIT"}
 requires-python = ">=3.12" 
 
 dependencies = [
-    "ibapi @ file://./src/ib_api/src/ibapi/IBJts/source/pythonclient",
+    "ibapi @ file:./src/ib_api/src/ibapi/IBJts/source/pythonclient#egg=ibapi-10.36.2",
     "pandas==2.2.3",
     "pytz~=2022.7.1",
     "openpyxl~=3.1.2",
     "python-dateutil~=2.8.2",
+    "protobuf==6.31.0",
     "PyQt6",
 ]
 

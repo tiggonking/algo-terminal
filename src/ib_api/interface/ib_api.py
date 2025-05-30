@@ -10,7 +10,7 @@ from src.config.globals.email_manager import EMAIL_MANAGER
 from ibapi.client import EClient
 from ibapi.contract import Contract
 from ibapi.execution import Execution, ExecutionFilter
-from ibapi.commission_report import CommissionReport
+from ibapi.commission_and_fees_report import CommissionAndFeesReport
 from ibapi.order import Order
 from ibapi.order_state import OrderState
 from ibapi.wrapper import EWrapper, BarData
@@ -713,14 +713,14 @@ class IB_API(EWrapper, EClient):
         LOG.debug(f'{self.account_id} - execDetailsEnd')
         self.event_executions_end.set()
 
-    def commissionReport(self, commissionReport: CommissionReport):
+    def CommissionAndFeesReport(self, CommissionAndFeesReport: CommissionAndFeesReport):
         t = []
         for r in self.trade_registers:
-            t.extend([trd for trd in r.trades if commissionReport.execId in [e.execId for e in trd.executions]])
+            t.extend([trd for trd in r.trades if CommissionAndFeesReport.execId in [e.execId for e in trd.executions]])
         if t:
-            t[0].add_commission_report(commissionReport)
+            t[0].add_commission_report(CommissionAndFeesReport)
         else:
-            self.orphaned_commissions.append(commissionReport)
+            self.orphaned_commissions.append(CommissionAndFeesReport)
 
     # TRADE IDENTIFIERS
 

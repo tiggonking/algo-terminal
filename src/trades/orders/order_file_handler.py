@@ -9,7 +9,7 @@ from pathlib import Path
 import shutil
 import time as sleeper
 import traceback
-import utilities as util
+import src.utils.utilities as util
 
 file_util = util.file_utilities()
 

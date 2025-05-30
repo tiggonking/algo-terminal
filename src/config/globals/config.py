@@ -6,8 +6,8 @@ from src.config.globals.signals import SIGNALS
 import logging
 from src.markets.markets import US_MARKET
 import numpy as np
-from trading_objects.account import Account
-from trading_objects.strategy import Strategy
+from src.account.account import Account
+from src.trades.strategy.strategy import Strategy
 import os
 import pandas as pd
 import pickle

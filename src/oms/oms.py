@@ -42,8 +42,8 @@ from src.account.nav_monitor import NAVMonitor
 import openpyxl
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font
-from order_file_handler import FileWatcher
-from orders import OrderRef
+from trades.orders.order_file_handler import FileWatcher
+from trades.orders.orders import OrderRef
 import orders as o
 import os
 from os.path import basename
@@ -2009,22 +2009,29 @@ class OMS:
         LOG.debug('All OMS threads joined')
 
 
-if __name__ == '__main__':
-
+def main():
     from src.gui.splash_screen import QASplashScreen
+    
+    try:
+        app = QApplication(sys.argv)
 
-    app = QApplication(sys.argv)
+        pixmap = QPixmap(500, 300)
+        splash = QASplashScreen(
+            pixmap=pixmap,
+            software_name="Quantive Alpha\nOrder Management System",
+            version_info=__version__
+        )
+        splash.show()
 
-    pixmap = QPixmap(500, 300)
-    splash = QASplashScreen(
-        pixmap=pixmap,
-        software_name="Quantive Alpha\nOrder Management System",
-        version_info=__version__
-    )
-    splash.show()
+        oms = OMS()
+        oms_gui = OMSgui(oms)
+        oms_gui.show()
+        splash.finish(oms_gui)
+        app.exec()
+    except Exception as e:
+        LOG.error(f"An error occurred: {e}")
+        raise e
 
-    oms = OMS()
-    oms_gui = OMSgui(oms)
-    oms_gui.show()
-    splash.finish(oms_gui)
-    app.exec()
+
+if __name__ == '__main__':
+    main()
