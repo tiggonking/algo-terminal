@@ -68,6 +68,7 @@ class BrokerApp:
     def nlv(self, account_id, currency='BASE', refresh=False):
 
         if refresh:
+            print("I got here")
             self.api.get_account_values(account_id)
 
         # Net Liquidation value is only reported in the account values of the base currency (e.g. 'AUD' (not 'BASE))

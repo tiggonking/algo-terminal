@@ -36,7 +36,6 @@ class OMS_Settings:
 
     @property
     def file_path(self):
-        print(os.path.join(ADDR.folder_oms_data, 'OMS Settings'))
         return os.path.join(ADDR.folder_oms_data, 'OMS Settings')
 
     def save_serialised_settings(self):

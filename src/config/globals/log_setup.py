@@ -196,13 +196,13 @@ LOG = logging.getLogger('OMS')
 if not LOG.handlers:
 
     # FROM OTHER CODE
-    # LOG.setLevel(logging.DEBUG)
-    # stream_handler = logging.StreamHandler()
-    # stream_handler.setLevel(logging.DEBUG)
-    # stream_handler.name = 'Stream Handler'
-    # formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-    # stream_handler.setFormatter(formatter)
-    # LOG.addHandler(stream_handler)
+    LOG.setLevel(logging.DEBUG)
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(logging.DEBUG)
+    stream_handler.name = 'Stream Handler'
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+    stream_handler.setFormatter(formatter)
+    LOG.addHandler(stream_handler)
 
     default_sender_address = ''
     default_recipient_addresses = ''

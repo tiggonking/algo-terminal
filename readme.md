@@ -16,5 +16,5 @@ pip install -e .
 in git terminal run the fulling to create the exe build:
 
 ```bash
-pyinstaller --onefile --windowed src/oms/oms.py 
+pyinstaller --clean oms.spec
 ```

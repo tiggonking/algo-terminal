@@ -414,7 +414,6 @@ class IB_API(EWrapper, EClient):
         if account_id not in self.event_account_update_end.keys():
             self.event_account_update_end[account_id] = threading.Event()
         self.event_account_update_end[account_id].clear()
-
         if len(self.connected_accounts) == 1:
             LOG.debug(f'Requesting account update values for single account {account_id}.')
             self.reqAccountUpdates(True, self.account_id)
@@ -819,7 +818,7 @@ class IB_API(EWrapper, EClient):
         LOG.info(f'{self.account_id} Windows Error: {text}')
         super().winError(text, lastError)
 
-    def error(self, reqId, errorCode, errorString, advancedOrderRejectJson=''):
+    def error(self, reqId, errorCode, errorString, advancedOrderRejectJson='', *args):
         # Error Codes: https://interactivebrokers.github.io/tws-api/message_codes.html#system_codes
 
         # ALL error callbacks are logged at debug level
