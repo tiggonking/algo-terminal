@@ -1,0 +1,34 @@
+{
+    "name": "algoterminaldev",
+    "dockerComposeFile": "./docker-compose.yml",
+    "service": "algoterminaldev",
+    "runServices": ["algoterminaldev"],
+    "hostRequirements": {
+        "cpus": 3,
+        "memory": "7gb",
+        "storage": "30gb"
+        },
+    "workspaceFolder": "/algoterminal",
+    "shutdownAction": "none",
+    "customizations": {
+    "vscode": {
+    "settings": {
+        "editor.formatOnSave": true,
+        "workbench.colorTheme": "GitHub Dark",
+        "workbench.iconTheme": "material-icon-theme"
+        },
+        "extensions": [
+            "eamodio.gitlens",
+            "oderwat.indent-rainbow",
+            "KevinRose.vsc-python-indent",
+            "ms-python.vscode-pylance",
+            "GitHub.github-vscode-theme",
+            "mechatroner.rainbow-csv",
+            "usernamehw.errorlens"
+        ]
+        }
+    },
+    "initializeCommand": "echo 'Welcome to the AlgoTerminal development environmelearnt!'",
+    "postCreateCommand": "cd /algoterminal/src/ib_api/src/ibapi/IBJts/source/pythonclient && python setup.py install",
+    "privileged": true
+}
