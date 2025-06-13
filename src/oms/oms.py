@@ -1974,7 +1974,7 @@ class OMS:
         self.keep_alive = False
 
         LOG.info('Disconnecting API')
-        from src.ib_api.ib_api import IB_API
+        from src.ib_api.interface.ib_api import IB_API
         for api in IB_API._instances:
             # disconnect from broker
             api.keep_alive = False

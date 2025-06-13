@@ -69,7 +69,7 @@ class IB_API(EWrapper, EClient):
         self.connection_thread = None
         self.port_number = port  # static record, as self.port can be cleared by IB
         self.port = port
-        self.client_id = client_id
+        self.client_id = int(client_id) if client_id else 1  # Use default client ID of 1 if empty
         self.connection_error = False
         self.connected_accounts = []
         self.keep_alive = True
