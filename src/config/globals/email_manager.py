@@ -5,6 +5,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
+from email.header import Header
 from email import encoders
 from src.config.globals.log_setup import LOG
 from src.config.globals.signals import SIGNALS
@@ -58,8 +59,8 @@ class EmailHandler:
                         msg = MIMEMultipart()
                         msg['From'] = f'QA OMS<{self.from_email}>'
                         msg['To'] = recipient
-                        msg['Subject'] = subject
-                        msg.attach(MIMEText(body, text_type))
+                        msg['Subject'] = str(Header(subject, 'utf-8'))
+                        msg.attach(MIMEText(body, text_type, 'utf-8')) 
 
                         # add attachments
                         if attachments_file_paths:
