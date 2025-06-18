@@ -1,7 +1,8 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, NonNegativeFloat
 from typing import Optional
 from enum import Enum
 from src.config.types import AlphaNumStr
+import pendulum
 
 class TradingMode(Enum):
     PAPER = "PAPER"
@@ -78,4 +79,105 @@ class StrategyConfig(BaseModel):
     SecondarySecurity: Optional[AlphaNumStr] = Field(
         description="The secondary security for the strategy. Only used for some trading strategies."
     )
+    
+
+class ReportingConfig(BaseModel):
+    """
+    This model encapsulates all the configuration for report timing settings.
+    These times determine when various reports and files are generated during the trading day.
+    The sequence must be: RTOutputFileTime -> OrderTime -> DailyReportTime.
+    Note that these should also be cross validated against the market open and close times of the market you are trading in.
+    """
+    RTOutputFileTime: pendulum.DateTime = Field(
+        description="The time when RT output files should be generated. Must be the earliest time."
+    )
+    OrderTime: pendulum.DateTime = Field(
+        description="The time when orders should be processed. Must be after RTOutputFileTime but before DailyReportTime."
+    )
+    DailyReportTime: pendulum.DateTime = Field(
+        description="The time when daily reports should be generated. Must be the latest time."
+    )
+
+    @field_validator('OrderTime', mode='before')
+    @classmethod
+    def validate_order_time(cls, value: pendulum.DateTime, info) -> pendulum.DateTime:
+        rt_output_time = info.data.get('RTOutputFileTime')
+        if rt_output_time and value <= rt_output_time:
+            raise ValueError("OrderTime must be after RTOutputFileTime")
+        return value
+
+    @field_validator('DailyReportTime', mode='before')
+    @classmethod
+    def validate_daily_report_time(cls, value: pendulum.DateTime, info) -> pendulum.DateTime:
+        order_time = info.data.get('OrderTime')
+        if order_time and value <= order_time:
+            raise ValueError("DailyReportTime must be after OrderTime")
+        return value
+
+class IgnoredPositionConfig(BaseModel):
+    """
+    This model encapsulates the configuration for positions that should be ignored by the OMS.
+    These positions are typically pre-existing or managed outside the system but need to be tracked
+    to ensure accurate position calculations and risk management.
+    """
+    AccountID: AlphaNumStr = Field(
+        description="The account ID where the ignored position exists."
+    )
+    ContractID: int = Field(
+        description="The contract ID of the ignored position.",
+        gt=0
+    )
+    Symbol: AlphaNumStr = Field(
+        description="The trading symbol of the ignored position."
+    )
+    IgnoredPositionSize: float = Field(
+        description="The size of the position to be ignored. Can be positive for long positions or negative for short positions."
+    )
+    
+
+class FundsConfig(BaseModel):
+    """
+    This model encapsulates the configuration for tracking account funds movements.
+    This includes deposits and withdrawals for each account, with their respective dates.
+    Used for accurate capital tracking and performance calculations.
+    """
+    Account: AlphaNumStr = Field(
+        description="The account ID where the funds movement occurred."
+    )
+    Date: pendulum.DateTime = Field(
+        description="The date when the funds movement occurred."
+    )
+    Deposit: NonNegativeFloat = Field(
+        description="The amount deposited into the account. Must be non-negative.",
+        default=0.0
+    )
+    Withdrawal: NonNegativeFloat = Field(
+        description="The amount withdrawn from the account. Must be non-negative.",
+        default=0.0
+    )
+
+    @field_validator('Withdrawal', 'Deposit', mode='before')
+    @classmethod
+    def validate_amounts(cls, value: float) -> float:
+        """Ensure amounts are rounded to 2 decimal places"""
+        return round(value, 2)
+
+    @field_validator('Date', mode='before')
+    @classmethod
+    def validate_date(cls, value: pendulum.DateTime) -> pendulum.DateTime:
+        """Ensure date is not in the future"""
+        # TODO: We should have a specific way of handling the "current time" of the machine, we should force the config to be explicit on all time zones.
+        if value > pendulum.now():
+            raise ValueError("Date cannot be in the future")
+        return value
+
+    @model_validator(mode='after')
+    def validate_transaction(self) -> 'FundsConfig':
+        """Ensure at least one of Deposit or Withdrawal is non-zero, but not both"""
+        if self.Deposit > 0 and self.Withdrawal > 0:
+            raise ValueError("Cannot have both deposit and withdrawal in the same transaction")
+        if self.Deposit == 0 and self.Withdrawal == 0:
+            raise ValueError("Must specify either a deposit or withdrawal amount")
+        return self
+
     

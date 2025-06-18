@@ -1259,6 +1259,9 @@ class OMS:
                                 entry_order.goodTillDate = order.gtd_time
 
                             # 10. Add IB ALGO to order, if applicable
+                            # TODO: DarkIce technically supports more parameters, like start, end time, we should reflect that reality, even if we set defaults.
+                            # TODO: We need to make sure algorithms and order types match with each other, for example, DarkICE does not support market orders and requires a limit is set.
+                            # NOTE: https://www.interactivebrokers.com/campus/trading-lessons/dark-ice/
                             if order.ib_algo == 'DARKICE':
                                 display_size = int(entry_order.totalQuantity * self.config['DarkIce']/100)
                                 entry_order = o.add_algo_dark_ice(entry_order, displaySize=display_size)

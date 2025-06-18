@@ -1,7 +1,8 @@
 from enum import Enum
-from pydantic import BaseModel, ValidationError, BeforeValidator
+from pydantic import BaseModel, ValidationError, BeforeValidator, PositiveInt, field_validator
 from pydantic_core import ErrorDetails
 from typing import List, Dict, Any, Annotated
+import pendulum
 
 # Start with enums that we know are available in the API.
 class Exchange(Enum):
@@ -91,6 +92,39 @@ class IBAlgo(Enum):
     PCTVOL = 'PCTVOL'  # Percentage of Volume algorithm
     TWAP = 'TWAP'  # Time Weighted Average Price algorithm
     VWAP = 'VWAP'  # Volume Weighted Average Price algorithm
+
+
+class DarkIceConfig(BaseModel):
+    """
+    Configuration for the Dark Ice algorithm.
+    See https://www.interactivebrokers.com/campus/trading-lessons/dark-ice/
+    
+    Parameters:
+        display_size (int): The size of the order to display in the market
+        start_time (pendulum.DateTime): When to start the algorithm
+        end_time (pendulum.DateTime): When to end the algorithm
+        allow_past_end_time (bool): Whether to allow the order to continue past the end time
+    """
+    display_size: PositiveInt
+    start_time: pendulum.DateTime
+    end_time: pendulum.DateTime
+    allow_past_end_time: bool = False
+
+    @field_validator('end_time')
+    @classmethod
+    def validate_end_time(cls, end_time: pendulum.DateTime, info) -> pendulum.DateTime:
+        """Validate that end time is after start time"""
+        start_time = info.data.get('start_time')
+        if start_time and end_time <= start_time:
+            raise ValueError("end_time must be after start_time")
+        return end_time
+
+class IcebergConfig(BaseModel):
+    """
+    Configuration for Iceberg orders.
+    TODO: Need to find a proper ref for the args for this.
+    """
+    pass
 
 class SpecialOrder(Enum):
     GAP_CONDITIONAL = 'Gap-Conditional'
