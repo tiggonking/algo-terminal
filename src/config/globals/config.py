@@ -1,3 +1,8 @@
+import sys
+import os
+# Add the project root to sys.path for direct script execution
+
+
 from datetime import datetime, time
 from src.config.globals.email_manager import EMAIL_MANAGER
 from src.config.globals.addresses import ADDR
@@ -341,3 +346,16 @@ class Config:
 
 OMS_CONFIG = Config()           # most settings still here, as recorded in excel config file
 OMS_SETTINGS = OMS_Settings()   # some settings now here, as set/recorded in gui.  Eventually migrate all settings here.
+
+if __name__ == "__main__":
+    # Get the directory containing this file
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    # Navigate up to the project root (Algo_Terminal directory)
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
+    if project_root not in sys.path:
+        sys.path.insert(0, project_root)
+
+    config = Config()
+    config.load_config()
+    print(config.trading_accounts)
+
