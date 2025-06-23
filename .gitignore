@@ -276,3 +276,6 @@ Temporary Items
 [Ss]cripts
 pyvenv.cfg
 pip-selfcheck.json
+
+# some of the excel sheet and libreoffice stuff
+*.~lock*
