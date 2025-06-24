@@ -138,12 +138,40 @@ class AccountValidationResult(BaseModel):
         self.is_valid = False
 
 
+class StrategyValidationError(BaseModel):
+    """Model for strategy validation errors"""
+    account_id: str = Field(description="Account ID that failed validation")
+    strategy_id: str = Field(description="Strategy ID that failed validation")
+    field_name: str = Field(description="Name of the field that failed validation")
+    value: str = Field(description="Invalid value that was provided")
+    error_message: str = Field(description="Human-readable error message")
+    suggested_value: Optional[str] = Field(default=None, description="Suggested correct value if applicable")
+
+
+class StrategyValidationResult(BaseModel):
+    """Model for strategy validation results"""
+    is_valid: bool = Field(description="Whether the strategy is valid")
+    strategy_entry: Optional['StrategyTabEntry'] = Field(default=None, description="Valid strategy entry if validation passed")
+    errors: List[StrategyValidationError] = Field(default_factory=list, description="List of validation errors")
+    
+    def add_error(self, account_id: str, strategy_id: str, field_name: str, value: str, error_message: str, suggested_value: Optional[str] = None) -> None:
+        """Add a validation error"""
+        self.errors.append(StrategyValidationError(
+            account_id=account_id,
+            strategy_id=strategy_id,
+            field_name=field_name,
+            value=value,
+            error_message=error_message,
+            suggested_value=suggested_value
+        ))
+        self.is_valid = False
+
+
 class AccountTabEntry(BaseTabData):
     """Pydantic model for a single account entry in the accounts tab"""
     account_config: AccountConfig = Field(description="Account configuration using existing AccountConfig type")
     ib_config: InteractiveBrokersConfig = Field(description="IB configuration using existing InteractiveBrokersConfig type")
     account_type: str = Field(description="The type of account")
-    email_address: Optional[EmailStr] = Field(default=None, description="Email address for reporting")
     
     @classmethod
     def from_excel_data(cls, account_data: Dict[str, str]) -> Optional['AccountTabEntry']:
@@ -183,16 +211,10 @@ class AccountTabEntry(BaseTabData):
                 client_id=ib_client_id
             )
             
-            # Let EmailStr handle email validation
-            email_val = account_data.get('Email Address for Reporting', '').strip()
-            email_address = email_val if email_val else None
-            logger.debug(f"Email parsing for account {account_config.AccountID}: raw='{email_val}', processed='{email_address}'")
-            
             return cls(
                 account_config=account_config,
                 ib_config=ib_config,
-                account_type=account_data.get('Account Type', ''),
-                email_address=email_address
+                account_type=account_data.get('Account Type', '')
             )
             
         except ValidationError as e:
@@ -243,16 +265,10 @@ class AccountTabEntry(BaseTabData):
                 client_id=account_data.get('IB Client #') if account_data.get('IB Client #') else None
             )
             
-            # Let EmailStr handle email validation
-            email_val = account_data.get('Email Address for Reporting', '').strip()
-            email_address = email_val if email_val else None
-            logger.debug(f"Email parsing for account {account_id}: raw='{email_val}', processed='{email_address}'")
-            
             result.account_entry = cls(
                 account_config=account_config,
                 ib_config=ib_config,
-                account_type=account_data.get('Account Type', ''),
-                email_address=email_address
+                account_type=account_data.get('Account Type', '')
             )
             
         except ValidationError as e:
@@ -357,9 +373,37 @@ class AccountsConfig(BaseTabData):
 class StrategiesConfig(BaseTabData):
     """Configuration for strategies tab"""
     strategies: List[StrategyConfig] = Field(default_factory=list, description="List of strategy configurations")
+    validation_errors: List[StrategyValidationError] = Field(default_factory=list, description="Validation errors for rejected strategies")
     
-    def __init__(self, strategies: List[StrategyConfig] = None, **kwargs):
-        super().__init__(strategies=strategies or [], **kwargs)
+    def __init__(self, strategies: List[StrategyConfig] = None, validation_errors: List[StrategyValidationError] = None, **kwargs):
+        super().__init__(
+            strategies=strategies or [],
+            validation_errors=validation_errors or [],
+            **kwargs
+        )
+    
+    @property
+    def total_strategies(self) -> int:
+        """Total number of strategies"""
+        return len(self.strategies)
+    
+    @property
+    def rejected_strategies(self) -> int:
+        """Number of strategies rejected due to validation errors"""
+        return len(self.validation_errors)
+    
+    def get_validation_summary(self) -> str:
+        """Get a summary of validation results"""
+        if not self.validation_errors:
+            return f"All {self.total_strategies} strategies validated successfully."
+        
+        summary = f"Validation completed: {self.total_strategies} strategies accepted, {self.rejected_strategies} strategies rejected.\n"
+        summary += "Rejected strategies:\n"
+        
+        for error in self.validation_errors:
+            summary += f"  - Account {error.account_id}, Strategy {error.strategy_id}: {error.error_message}\n"
+        
+        return summary
 
 
 class IgnoredPositionsConfig(BaseTabData):
@@ -427,12 +471,22 @@ class AccountsTabParser(TabParser):
         return parser.parse_accounts_tab(excel_file_path)
 
 
+class StrategiesTabParser(TabParser):
+    """Parser for the strategies tab with validation"""
+    
+    def parse_tab(self, excel_file_path: str, tab_name: str) -> StrategiesConfig:
+        """Parse the strategies tab and return StrategiesConfig with validation"""
+        parser = SheetV2Parser()
+        return parser.parse_strategies_tab(excel_file_path)
+
+
 class ConfigParserFactory:
     """Factory for creating configuration parsers with dependency injection"""
     
     def __init__(self):
         self.tab_parsers: Dict[str, Type[TabParser]] = {
             RequiredTabs.ACCOUNTS.value: AccountsTabParser,
+            RequiredTabs.STRATEGIES.value: StrategiesTabParser,
             # Add more parsers as they are implemented
         }
     
@@ -609,10 +663,6 @@ class SheetV2Parser:
                 field_name = str(row.iloc[0]).strip() if pd.notna(row.iloc[0]) else ""
                 value = row.iloc[col_idx] if col_idx < len(row) else None
                 
-                # Debug logging for email field specifically
-                if field_name == 'Email Address for Reporting':
-                    logger.debug(f"Row {row_idx}, Col {col_idx}: field_name='{field_name}', raw_value={value}, type={type(value)}, notna={pd.notna(value)}")
-                
                 # Only set the field value if it's not already set (take first non-empty value)
                 if field_name and field_name not in field_values:
                     if pd.notna(value) and str(value).strip():
@@ -622,7 +672,6 @@ class SheetV2Parser:
             
             # Debug logging for field parsing
             logger.debug(f"Parsed fields for column {col_idx}: {field_values}")
-            logger.debug(f"Email field value: '{field_values.get('Email Address for Reporting', 'NOT_FOUND')}'")
             
             # Skip accounts without ID
             if 'Account ID' not in field_values or not field_values['Account ID']:
@@ -637,6 +686,75 @@ class SheetV2Parser:
                 validation_errors.extend(validation_result.errors)
         
         return valid_accounts, validation_errors
+
+    def parse_strategies_tab(self, excel_file_path: str) -> StrategiesConfig:
+        """
+        Parse the strategies tab with validation and error reporting.
+        
+        Returns:
+            StrategiesConfig with valid strategies and validation errors
+        """
+        try:
+            # Read the strategies tab with header
+            df = pd.read_excel(excel_file_path, sheet_name=RequiredTabs.STRATEGIES.value)
+            logger.debug("First 10 rows of strategies tab:")
+            logger.debug(f"\n{df.head(10)}")
+
+            # Parse the strategies data with validation
+            valid_strategies, validation_errors = self._parse_strategies_data(df)
+
+            # Create strategies config
+            strategies_config = StrategiesConfig(strategies=valid_strategies, validation_errors=validation_errors)
+            
+            # Pretty print validation results
+            pretty_print_strategies_validation_results(strategies_config)
+
+            return strategies_config
+
+        except Exception as e:
+            logger.error(f"Error parsing strategies tab: {str(e)}")
+            raise ValueError(f"Error parsing strategies tab: {str(e)}")
+
+    def _parse_strategies_data(self, df: pd.DataFrame) -> tuple[List[StrategyConfig], List[StrategyValidationError]]:
+        """
+        Parse the strategies tab data with validation and error reporting.
+        
+        Returns:
+            Tuple of (valid_strategies, validation_errors)
+        """
+        valid_strategies = []
+        validation_errors = []
+
+        # Process each row in the strategies tab
+        for row_idx, row in df.iterrows():
+            # Convert row to dictionary, handling NaN values
+            strategy_data = {}
+            for col_name, value in row.items():
+                if pd.notna(value) and str(value).strip():
+                    strategy_data[col_name] = str(value).strip()
+                else:
+                    strategy_data[col_name] = ""
+            
+            # Debug logging for strategy parsing
+            logger.debug(f"Parsed strategy data for row {row_idx}: {strategy_data}")
+            
+            # Skip rows without Accout or Strategy
+            account_field = strategy_data.get('Accout')
+            strategy_field = strategy_data.get('Strategy')
+            
+            if not account_field or not strategy_field:
+                logger.debug(f"Skipping row {row_idx} - missing Accout or Strategy")
+                continue
+            
+            # Validate and create strategy entry
+            validation_result = StrategyTabEntry.create_from_excel_data(strategy_data)
+            
+            if validation_result.is_valid and validation_result.strategy_entry:
+                valid_strategies.append(validation_result.strategy_entry.strategy_config)
+            else:
+                validation_errors.extend(validation_result.errors)
+        
+        return valid_strategies, validation_errors
 
     def parse_excel_file(self, excel_file_path: str) -> Dict[str, Any]:
         """
@@ -699,6 +817,20 @@ def parse_accounts_from_excel(excel_file_path: str) -> AccountsConfig:
     """
     parser = SheetV2Parser()
     return parser.parse_accounts_tab(excel_file_path)
+
+
+def parse_strategies_from_excel(excel_file_path: str) -> StrategiesConfig:
+    """
+    Convenience function to parse strategies from Excel with validation.
+    
+    Args:
+        excel_file_path: Path to the Excel file
+        
+    Returns:
+        StrategiesConfig containing all strategy entries with validation errors
+    """
+    parser = SheetV2Parser()
+    return parser.parse_strategies_tab(excel_file_path)
 
 
 def parse_excel_config(excel_file_path: str) -> Dict[str, Any]:
@@ -787,17 +919,14 @@ def pretty_print_validation_results(accounts_config: 'AccountsConfig') -> None:
         account_table.add_column("Type", style="blue")
         account_table.add_column("Platform", style="magenta")
         account_table.add_column("Port", style="yellow")
-        account_table.add_column("Email", style="green")
         
         for account in accounts_config.get_all_accounts():
-            logger.debug(f"Account {account.account_config.AccountID} email: {account.email_address} (type: {type(account.email_address)})")
             account_table.add_row(
                 account.account_config.AccountID,
                 account.account_config.AccountAlias,
                 account.account_type,
                 account.ib_config.platform.value,
-                str(account.ib_config.port),
-                str(account.email_address) if account.email_address else "None"
+                str(account.ib_config.port)
             )
         
         console.print(account_table)
@@ -837,10 +966,161 @@ def pretty_print_account_data(account: 'AccountTabEntry') -> None:
     table.add_row("Platform", account.ib_config.platform.value)
     table.add_row("Port", str(account.ib_config.port))
     table.add_row("Client ID", str(account.ib_config.client_id) if account.ib_config.client_id else "None")
-    table.add_row("Email", account.email_address or "None")
     
     console.print(table)
     console.print()
+
+
+class StrategyTabEntry(BaseTabData):
+    """Pydantic model for a single strategy entry in the strategies tab"""
+    strategy_config: StrategyConfig = Field(description="Strategy configuration using existing StrategyConfig type")
+    
+    @classmethod
+    def create_from_excel_data(cls, strategy_data: Dict[str, str]) -> StrategyValidationResult:
+        """
+        Create StrategyTabEntry from Excel data using Pydantic's native validation.
+        
+        Args:
+            strategy_data: Dictionary of field names to values from Excel
+            
+        Returns:
+            StrategyValidationResult with validation status and errors
+        """
+        result = StrategyValidationResult(is_valid=True)
+        
+        # Get basic strategy info for error reporting - use exact column name "Accout"
+        account_id = strategy_data.get('Account', 'Unknown')
+        strategy_id = strategy_data.get('Strategy', 'Unknown')
+        
+        # Validate required fields
+        if not account_id or account_id.strip() == '':
+            result.add_error(
+                account_id=account_id,
+                strategy_id=strategy_id,
+                field_name='Accout',
+                value=account_id,
+                error_message="Account ID is required and cannot be empty"
+            )
+            return result
+        
+        if not strategy_id or strategy_id.strip() == '':
+            result.add_error(
+                account_id=account_id,
+                strategy_id=strategy_id,
+                field_name='Strategy',
+                value=strategy_id,
+                error_message="Strategy ID is required and cannot be empty"
+            )
+            return result
+        
+        # Create the strategy entry using Pydantic's native validation
+        try:
+            # Let Pydantic handle all validation through the StrategyConfig type
+            strategy_config = StrategyConfig(
+                Account=account_id,
+                StrategyId=strategy_id,
+                Direction=strategy_data.get('Direction') if strategy_data.get('Direction') else None,
+                Allocation=strategy_data.get('Allocation in Account') if strategy_data.get('Allocation in Account') else None,
+                MaxShortMargin=strategy_data.get('Max Short Margin') if strategy_data.get('Max Short Margin') else None,
+                MaxShortFeeRate=strategy_data.get('Max Short Fee Rate') if strategy_data.get('Max Short Fee Rate') else None,
+                PrimarySecurity=strategy_data.get('Primary Security') if strategy_data.get('Primary Security') else None,
+                SecondarySecurity=strategy_data.get('Secondary Security') if strategy_data.get('Secondary Security') else None,
+                IBAlgo=strategy_data.get('IB Algo') if strategy_data.get('IB Algo') else None,
+                OrderTime=strategy_data.get('Order Time') if strategy_data.get('Order Time') else None
+            )
+            
+            result.strategy_entry = cls(strategy_config=strategy_config)
+            
+        except ValidationError as e:
+            # Use the abstract validation error handler
+            context_info = {'account_id': account_id, 'strategy_id': strategy_id}
+            structured_errors = StrategyTabEntry.handle_validation_errors(e, context_info)
+            
+            for error_info in structured_errors:
+                result.add_error(
+                    account_id=error_info.get('account_id', account_id),
+                    strategy_id=error_info.get('strategy_id', strategy_id),
+                    field_name=error_info.get('field_name', 'Unknown field'),
+                    value=error_info.get('value', 'Unknown value'),
+                    error_message=error_info.get('error_message', 'Validation error'),
+                    suggested_value=error_info.get('suggested_value')
+                )
+        
+        return result
+
+
+def pretty_print_strategies_validation_results(strategies_config: 'StrategiesConfig') -> None:
+    """
+    Pretty print strategy validation results and strategy data using Rich.
+    
+    Args:
+        strategies_config: The strategies configuration with validation results
+    """
+    # Create main panel
+    if strategies_config.validation_errors:
+        # Show validation errors
+        error_table = Table(title="❌ Strategy Validation Errors", show_header=True, header_style="bold red")
+        error_table.add_column("Account ID", style="cyan", no_wrap=True)
+        error_table.add_column("Strategy ID", style="cyan")
+        error_table.add_column("Field", style="yellow")
+        error_table.add_column("Value", style="red", no_wrap=True)
+        error_table.add_column("Error Message", style="red")
+        error_table.add_column("Suggested Value", style="green")
+        
+        for error in strategies_config.validation_errors:
+            error_table.add_row(
+                error.account_id,
+                error.strategy_id,
+                error.field_name,
+                error.value,
+                error.error_message,
+                error.suggested_value or "N/A"
+            )
+        
+        console.print(error_table)
+        console.print()
+    
+    # Show valid strategies
+    if strategies_config.total_strategies > 0:
+        strategy_table = Table(title="✅ Valid Strategies", show_header=True, header_style="bold green")
+        strategy_table.add_column("Account ID", style="cyan", no_wrap=True)
+        strategy_table.add_column("Strategy ID", style="cyan")
+        strategy_table.add_column("Direction", style="blue")
+        strategy_table.add_column("Allocation", style="magenta")
+        strategy_table.add_column("Primary Security", style="yellow")
+        strategy_table.add_column("Secondary Security", style="yellow")
+        strategy_table.add_column("IB Algo", style="green")
+        strategy_table.add_column("Order Time", style="green")
+        
+        for strategy in strategies_config.strategies:
+            strategy_table.add_row(
+                strategy.Account,
+                strategy.StrategyId,
+                strategy.Direction.value,
+                f"{strategy.Allocation}%",
+                strategy.PrimarySecurity.value,
+                strategy.SecondarySecurity.value if strategy.SecondarySecurity else "None",
+                strategy.IBAlgo.value if strategy.IBAlgo else "None",
+                strategy.OrderTime.strftime("%H:%M:%S %Z") if strategy.OrderTime else "None"
+            )
+        
+        console.print(strategy_table)
+        console.print()
+    
+    # Show summary
+    summary_text = f"""
+    📊 Strategy Validation Summary:
+    • Valid strategies: {strategies_config.total_strategies}
+    • Rejected strategies: {strategies_config.rejected_strategies}
+    • Total processed: {strategies_config.total_strategies + strategies_config.rejected_strategies}
+    """
+    
+    if strategies_config.validation_errors:
+        panel = Panel(summary_text, title="Strategy Validation Complete", border_style="red")
+    else:
+        panel = Panel(summary_text, title="Strategy Validation Complete", border_style="green")
+    
+    console.print(panel)
 
 
 if __name__ == "__main__":
@@ -856,6 +1136,10 @@ if __name__ == "__main__":
         # Test accounts parsing with pretty output
         logger.info("Parsing accounts from Excel file...")
         accounts_data = parse_accounts_from_excel(test_file)
+        
+        # Test strategies parsing with pretty output
+        logger.info("Parsing strategies from Excel file...")
+        strategies_data = parse_strategies_from_excel(test_file)
         
         # Test new structured configuration
         logger.info("Creating structured configuration...")
