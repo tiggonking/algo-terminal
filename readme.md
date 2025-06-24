@@ -1,20 +1,36 @@
-# Build python package
+# AlgoTerminal
 
-From within devcontainer run:
+## System Overview
+AlgoTerminal is a sophisticated Order Management System (OMS) designed for algorithmic trading. The system provides:
 
-```bash
-uv build
-```
+- Automated order management and execution
+- Multi-account support with Interactive Brokers integration
+- Real-time market data monitoring
+- Daily performance reporting and trade history tracking
+- Configurable order processing (scheduled or manual)
+- Comprehensive error handling and logging
+- Email notifications for important events
 
-# Build exe
-You will need pyinstaller installed in your environment.
+The system maintains order file monitoring, initiates and maintains broker connections, places daily exit/entry orders, and generates daily report emails and RealTest output files.
 
-First, pip install the package
-```bash
-pip install -e .
-```
-in git terminal run the fulling to create the exe build:
+## Dev Setup
+[To be completed]
 
-```bash
-pyinstaller --clean oms.spec
-```
+## Staging Setup
+The staging environment is hosted on Azure VM. To access the staging environment:
+
+1. Each developer must be whitelisted for access
+2. The staging environment is used to test the executable before production deployment
+3. Access is restricted to authorized personnel only
+4. To connect to the VM you need to use RDP (available on Windows and Mac)
+5. VM name: strategybuilder
+6. You will be prompted for a pincode and the vm password. Mitch will provide these to you. 
+7. Please ping me prior to connecting so I can start the VM (VM is default paused to reduce cost)
+
+The VM is setup with Norgate, RealTest, IB gateway, and the latest executable of the OMS.
+
+## Production
+[To be completed]
+
+## Testing Process
+[To be completed]
