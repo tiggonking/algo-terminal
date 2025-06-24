@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field, NonNegativeFloat, field_validator, model_
 from typing import Optional, Any
 from enum import Enum
 from src.config.types.general import AlphaNumStr, AlphaNumDashStr
+from src.config.types.trading import SecurityType, IBAlgo, SUPPORTED_SECURITY_TYPES, SUPPORTED_ALGOS
 import pendulum
 
 class TradingMode(Enum):
@@ -97,24 +98,195 @@ class StrategyConfig(BaseModel):
     This includes things like the name, allocation, etc..
     The actual order strategy itself is container in separate order files.
     """
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    
+    Account: AlphaNumStr = Field(
+        description="The account ID that will execute this strategy."
+    )
     StrategyId: AlphaNumStr = Field(
         description="The name of the strategy."
-    )
-    Allocation: float = Field(
-        description="The allocation for the strategy. Must be more than % or less than 100 percent.",
-        ge=0.0,
-        le=100.0
     )
     Direction: StrategyDirection = Field(
         description="The direction of the strategy."
     )
-    PrimarySecurity: AlphaNumStr = Field(
+    Allocation: float = Field(
+        description="The allocation for the strategy. Must be more than 0% or less than 100 percent.",
+        ge=0.0,
+        le=100.0
+    )
+    MaxShortMargin: Optional[float] = Field(
+        description="Maximum short margin allowed for this strategy.",
+        default=None,
+        ge=0.0
+    )
+    MaxShortFeeRate: Optional[float] = Field(
+        description="Maximum short fee rate for this strategy.",
+        default=None,
+        ge=0.0
+    )
+    PrimarySecurity: SecurityType = Field(
         description="The primary security for the strategy."
     )
-    SecondarySecurity: Optional[AlphaNumStr] = Field(
-        description="The secondary security for the strategy. Only used for some trading strategies."
+    SecondarySecurity: Optional[SecurityType] = Field(
+        description="The secondary security for the strategy. Only used for some trading strategies.",
+        default=None
     )
-    
+    IBAlgo: Optional[IBAlgo] = Field(
+        description="The IB algorithm to use for order execution.",
+        default=None
+    )
+    OrderTime: Optional[pendulum.DateTime] = Field(
+        description="The time when orders for this strategy should be processed.",
+        default=None
+    )
+
+    @field_validator('Allocation', mode='before')
+    @classmethod
+    def validate_allocation(cls, value) -> float:
+        """Convert percentage string to float and validate"""
+        if isinstance(value, str):
+            # Remove % sign and convert to float
+            value = value.replace('%', '').strip()
+            try:
+                value = float(value)
+            except ValueError:
+                raise ValueError(f"Invalid allocation value: {value}. Must be a number between 0 and 100")
+        
+        if not isinstance(value, (int, float)):
+            raise ValueError(f"Allocation must be a number, got {type(value).__name__}")
+        
+        # Excel always stores percentages as decimals (0.25 = 25%), so always multiply by 100
+        value = value * 100
+        
+        if value < 0 or value > 100:
+            raise ValueError(f"Allocation must be between 0 and 100, got {value}")
+        
+        return float(value)
+
+    @field_validator('MaxShortMargin', 'MaxShortFeeRate', mode='before')
+    @classmethod
+    def validate_optional_float(cls, value) -> Optional[float]:
+        """Convert empty strings to None and validate float values"""
+        if value is None or value == '' or str(value).strip() == '':
+            return None
+        
+        if isinstance(value, str):
+            try:
+                value = float(value.strip())
+            except ValueError:
+                raise ValueError(f"Invalid value: {value}. Must be a number")
+        
+        if not isinstance(value, (int, float)):
+            raise ValueError(f"Value must be a number, got {type(value).__name__}")
+        
+        if value < 0:
+            raise ValueError(f"Value must be non-negative, got {value}")
+        
+        return float(value)
+
+    @field_validator('OrderTime', mode='before')
+    @classmethod
+    def validate_order_time(cls, value) -> Optional[pendulum.DateTime]:
+        """Convert time string to pendulum DateTime - requires timezone information"""
+        if value is None or value == '' or str(value).strip() == '':
+            return None
+        
+        if isinstance(value, str):
+            try:
+                # Parse time strings like "09:00:00 US/Eastern"
+                if ' ' in value:
+                    time_part, timezone_part = value.rsplit(' ', 1)
+                    # Parse the time part
+                    dt = pendulum.parse(time_part, tz=timezone_part)
+                else:
+                    # No timezone provided - this is an error
+                    raise ValueError(f"Time must include timezone information. Expected format: 'HH:MM:SS Timezone' (e.g., '09:00:00 US/Eastern')")
+                return dt
+            except Exception as e:
+                if "Time must include timezone" in str(e):
+                    raise e
+                raise ValueError(f"Invalid time format: {value}. Expected format: 'HH:MM:SS Timezone' (e.g., '09:00:00 US/Eastern')")
+        
+        return value
+
+    @field_validator('PrimarySecurity', 'SecondarySecurity', mode='before')
+    @classmethod
+    def validate_security_type(cls, value) -> Optional[SecurityType]:
+        """Convert string to SecurityType enum and validate against supported types"""
+        if value is None or value == '' or str(value).strip() == '':
+            return None
+        
+        if isinstance(value, str):
+            value = value.strip().upper()
+            try:
+                security_type = SecurityType(value)
+                # Check if this security type is supported
+                if security_type not in SUPPORTED_SECURITY_TYPES:
+                    supported_types = [st.value for st in SUPPORTED_SECURITY_TYPES]
+                    raise ValueError(f"Security type '{value}' is not supported. Supported types are: {', '.join(supported_types)}")
+                return security_type
+            except ValueError as e:
+                if "is not supported" in str(e):
+                    raise e
+                valid_types = [st.value for st in SecurityType]
+                raise ValueError(f"Invalid security type '{value}'. Must be one of: {', '.join(valid_types)}")
+        
+        if isinstance(value, SecurityType):
+            # Check if this security type is supported
+            if value not in SUPPORTED_SECURITY_TYPES:
+                supported_types = [st.value for st in SUPPORTED_SECURITY_TYPES]
+                raise ValueError(f"Security type '{value.value}' is not supported. Supported types are: {', '.join(supported_types)}")
+            return value
+        
+        raise ValueError(f"Security type must be a string, got {type(value).__name__}")
+
+    @field_validator('IBAlgo', mode='before')
+    @classmethod
+    def validate_ib_algo(cls, value) -> Optional[IBAlgo]:
+        """Convert string to IBAlgo enum and validate against supported algorithms"""
+        if value is None or value == '' or str(value).strip() == '':
+            return None
+        
+        if isinstance(value, str):
+            value = value.strip().upper()
+            try:
+                ib_algo = IBAlgo(value)
+                # Check if this algorithm is supported
+                if ib_algo not in SUPPORTED_ALGOS:
+                    supported_algos = [algo.value for algo in SUPPORTED_ALGOS]
+                    raise ValueError(f"IB algorithm '{value}' is not supported. Supported algorithms are: {', '.join(supported_algos)}")
+                return ib_algo
+            except ValueError as e:
+                if "is not supported" in str(e):
+                    raise e
+                valid_algos = [algo.value for algo in IBAlgo]
+                raise ValueError(f"Invalid IB algorithm '{value}'. Must be one of: {', '.join(valid_algos)}")
+        
+        if isinstance(value, IBAlgo):
+            # Check if this algorithm is supported
+            if value not in SUPPORTED_ALGOS:
+                supported_algos = [algo.value for algo in SUPPORTED_ALGOS]
+                raise ValueError(f"IB algorithm '{value.value}' is not supported. Supported algorithms are: {', '.join(supported_algos)}")
+            return value
+        
+        raise ValueError(f"IB algorithm must be a string, got {type(value).__name__}")
+
+    @field_validator('Direction', mode='before')
+    @classmethod
+    def validate_direction(cls, value) -> StrategyDirection:
+        """Convert string to StrategyDirection enum with case-insensitive handling"""
+        if isinstance(value, StrategyDirection):
+            return value
+        
+        if isinstance(value, str):
+            value = value.strip().upper()
+            try:
+                return StrategyDirection(value)
+            except ValueError:
+                valid_directions = [d.value for d in StrategyDirection]
+                raise ValueError(f"Invalid direction '{value}'. Must be one of: {', '.join(valid_directions)}")
+        
+        raise ValueError(f"Direction must be a string, got {type(value).__name__}")
 
 class ReportingConfig(BaseModel):
     """

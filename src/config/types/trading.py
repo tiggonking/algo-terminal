@@ -3,6 +3,7 @@ from pydantic import BaseModel, ValidationError, BeforeValidator, PositiveInt, f
 from pydantic_core import ErrorDetails
 from typing import List, Dict, Any, Annotated
 import pendulum
+from pydantic import ConfigDict
 
 # Start with enums that we know are available in the API.
 class Exchange(Enum):
@@ -105,6 +106,8 @@ class DarkIceConfig(BaseModel):
         end_time (pendulum.DateTime): When to end the algorithm
         allow_past_end_time (bool): Whether to allow the order to continue past the end time
     """
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    
     display_size: PositiveInt
     start_time: pendulum.DateTime
     end_time: pendulum.DateTime
