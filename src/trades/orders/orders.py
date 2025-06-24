@@ -244,6 +244,7 @@ def moc_exit_order(parent_raw_entry_order, pos_size):
     return exit_order
 
 
+# TODO: Make sure that algorithms are configurable from config.
 def add_algo_dark_ice(baseOrder, displaySize: int, startTime='09:30:00 US/Eastern', endTime='16:00:00 US/Eastern',
                       allowPastEndTime=False):
     baseOrder.algoStrategy = "DarkIce"
